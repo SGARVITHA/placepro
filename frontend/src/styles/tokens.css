@@ -1,0 +1,14 @@
+:root {
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F5F5F7;
+  --color-text-primary: #1D1D1F;
+  --color-text-secondary: #6E6E73;
+  --color-accent: #0071E3;
+  --color-difficulty-easy: #34C759;
+  --color-difficulty-medium: #FF9500;
+  --color-difficulty-hard: #FF3B30;
+  --color-border: #E5E5EA;
+  --radius-card: 16px;
+  --radius-pill: 20px;
+  --spacing-unit: 8px;
+}

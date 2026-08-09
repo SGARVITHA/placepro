@@ -12,6 +12,7 @@ export default function ListView({
   onSearchChange,
   isLoading = false,
   error = null,
+  onRetry,
   emptyMessage = 'No items found',
   className = '',
 }) {
@@ -22,12 +23,24 @@ export default function ListView({
     return <Card key={item.id || index} {...item} />;
   };
 
+  const handleSearchInputChange = (e) => {
+    if (!onSearchChange) return;
+    const value = typeof e === 'string' ? e : e.target?.value ?? e;
+    onSearchChange(value);
+  };
+
+  const errorMessage = error
+    ? typeof error === 'string'
+      ? error
+      : error.message || "Couldn't load items."
+    : null;
+
   return (
     <div className={`space-y-3 ${className}`}>
       {onSearchChange && (
         <SearchBar
           value={searchValue}
-          onChange={onSearchChange}
+          onChange={handleSearchInputChange}
           placeholder={searchPlaceholder}
         />
       )}
@@ -35,7 +48,11 @@ export default function ListView({
       {isLoading ? (
         <LoadingState count={8} variant="card" />
       ) : error ? (
-        <EmptyState message={typeof error === 'string' ? error : 'Failed to load items.'} />
+        <EmptyState
+          message={errorMessage}
+          actionLabel="Retry"
+          onAction={onRetry || (() => window.location.reload())}
+        />
       ) : items.length === 0 ? (
         <EmptyState message={emptyMessage} />
       ) : (
@@ -46,3 +63,4 @@ export default function ListView({
     </div>
   );
 }
+

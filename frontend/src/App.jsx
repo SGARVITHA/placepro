@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
+import CompanyList from './pages/CompanySpecific/CompanyList';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Layout from './components/layout/Layout';
 
@@ -20,10 +21,21 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/company"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CompanyList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
+
 

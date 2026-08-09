@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import CompanyList from './pages/CompanySpecific/CompanyList';
 import CategoryList from './pages/CompanySpecific/CategoryList';
 import TopicList from './pages/CompanySpecific/TopicList';
+import QuestionList from './pages/CompanySpecific/QuestionList';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Layout from './components/layout/Layout';
 
@@ -84,12 +85,34 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* Question List routes (shared for Company Specific and Common Prep) */}
+        <Route
+          path="/company/:companyId/:categorySlug/:sectionId/:topicId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <QuestionList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/prep/:categorySlug/:sectionId/:topicId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <QuestionList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
+
 
 
 

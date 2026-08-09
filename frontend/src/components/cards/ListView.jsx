@@ -10,6 +10,7 @@ export default function ListView({
   searchPlaceholder = 'Search items...',
   searchValue,
   onSearchChange,
+  hideSearch = false,
   isLoading = false,
   error = null,
   onRetry,
@@ -37,7 +38,7 @@ export default function ListView({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      {onSearchChange && (
+      {!hideSearch && onSearchChange && (
         <SearchBar
           value={searchValue}
           onChange={handleSearchInputChange}
@@ -63,4 +64,5 @@ export default function ListView({
     </div>
   );
 }
+
 

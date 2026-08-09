@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
 import CompanyList from './pages/CompanySpecific/CompanyList';
+import CategoryList from './pages/CompanySpecific/CategoryList';
+import TopicList from './pages/CompanySpecific/TopicList';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Layout from './components/layout/Layout';
 
@@ -31,11 +33,64 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/company/:companyId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CategoryList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        {/* Topic List routes (shared for Company Specific and Common Prep) */}
+        <Route
+          path="/company/:companyId/:categorySlug"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <TopicList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/company/:companyId/:categorySlug/:sectionId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <TopicList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/prep/:categorySlug"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <TopicList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/prep/:categorySlug/:sectionId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <TopicList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
+
+
 
 

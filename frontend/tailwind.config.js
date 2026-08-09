@@ -7,27 +7,33 @@ export default {
   theme: {
     extend: {
       colors: {
-        'bg-primary': 'var(--color-bg-primary)',
-        'bg-secondary': 'var(--color-bg-secondary)',
-        'text-primary': 'var(--color-text-primary)',
-        'text-secondary': 'var(--color-text-secondary)',
-        'accent': 'var(--color-accent)',
-        'difficulty-easy': 'var(--color-difficulty-easy)',
-        'difficulty-medium': 'var(--color-difficulty-medium)',
-        'difficulty-hard': 'var(--color-difficulty-hard)',
-        'border-custom': 'var(--color-border)',
+        'bg-primary': '#FFFFFF',
+        'bg-secondary': '#F5F5F7',
+        'text-primary': '#1D1D1F',
+        'text-secondary': '#6E6E73',
+        accent: '#0071E3',
+        'difficulty-easy': '#34C759',
+        'difficulty-medium': '#FF9500',
+        'difficulty-hard': '#FF3B30',
+        border: '#E5E5EA',
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"Inter"', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'sans-serif'],
       },
       borderRadius: {
-        'card': 'var(--radius-card)',
-        'pill': 'var(--radius-pill)',
+        card: '16px',
+        pill: '20px',
       },
       spacing: {
-        'unit': 'var(--spacing-unit)',
+        1: '8px',
+        2: '16px',
+        3: '24px',
+        4: '32px',
+        6: '48px',
+        8: '64px',
       },
     },
   },
   plugins: [],
 }
+

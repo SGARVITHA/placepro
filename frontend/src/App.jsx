@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { useAuth } from './hooks/useAuth';
+import Layout from './components/layout/Layout';
 
 function DashboardPlaceholder() {
   const { user, signOut } = useAuth();
@@ -37,7 +38,9 @@ function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <DashboardPlaceholder />
+              <Layout>
+                <DashboardPlaceholder />
+              </Layout>
             </ProtectedRoute>
           }
         />

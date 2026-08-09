@@ -1,32 +1,44 @@
-import { supabase } from '../services/supabaseService.js';
+import jwt from 'jsonwebtoken';
+import jwksClient from 'jwks-rsa';
 
-export async function verifyAuth(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
+const client = jwksClient({
+  jwksUri: `https://${process.env.SUPABASE_PROJECT_REF}.supabase.co/auth/v1/.well-known/jwks.json`,
+  cache: true,
+  cacheMaxAge: 600000, // 10 minutes — key fetched once and reused from cache thereafter
+});
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        error: {
-          status: 401,
-          message: 'Missing or invalid Authorization header',
-        },
-      });
-    }
+function getKey(header, callback) {
+  client.getSigningKey(header.kid, (err, key) => {
+    if (err) return callback(err);
+    callback(null, key.getPublicKey());
+  });
+}
 
-    const token = authHeader.split(' ')[1];
+export function verifyAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
 
-    if (!token) {
-      return res.status(401).json({
-        error: {
-          status: 401,
-          message: 'Missing or invalid Authorization header',
-        },
-      });
-    }
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      error: {
+        status: 401,
+        message: 'Missing or invalid Authorization header',
+      },
+    });
+  }
 
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+  const token = authHeader.split(' ')[1];
 
-    if (error || !user) {
+  if (!token) {
+    return res.status(401).json({
+      error: {
+        status: 401,
+        message: 'Missing or invalid Authorization header',
+      },
+    });
+  }
+
+  jwt.verify(token, getKey, { algorithms: ['ES256'] }, (err, decoded) => {
+    if (err || !decoded) {
       return res.status(401).json({
         error: {
           status: 401,
@@ -35,14 +47,11 @@ export async function verifyAuth(req, res, next) {
       });
     }
 
-    req.user = user;
+    req.user = {
+      id: decoded.sub,
+      email: decoded.email,
+    };
+
     next();
-  } catch (err) {
-    return res.status(401).json({
-      error: {
-        status: 401,
-        message: 'Invalid or expired token',
-      },
-    });
-  }
+  });
 }

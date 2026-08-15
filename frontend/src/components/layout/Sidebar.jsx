@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { 
   Home, GraduationCap, CheckSquare, User, 
   Bookmark, FileText, Activity, Trophy, 
-  PlusSquare, Share2, Upload
+  PlusSquare, Share2
 } from 'lucide-react';
 
 const mainLinks = [
@@ -22,7 +22,6 @@ const secondaryLinks = [
 const contributeLinks = [
   { label: 'Submit Question', to: '/contribute/question', icon: PlusSquare },
   { label: 'Share Experience', to: '/contribute/experience', icon: Share2 },
-  { label: 'Upload Paper', to: '/contribute/paper', icon: Upload },
   { label: 'Profile', to: '/profile', icon: User },
 ];
 

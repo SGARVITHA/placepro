@@ -1,97 +1,100 @@
+import React from 'react';
 import { NavLink } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  Building2,
-  Brain,
-  Code2,
-  BookOpen,
-  Users,
-  X
+import { 
+  Home, Building2, GraduationCap, CheckSquare, User, 
+  Bookmark, FileText, Activity, Trophy, 
+  PlusSquare, Share2, Upload, Shield
 } from 'lucide-react';
 
-const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { label: 'Company Specific', href: '/company', icon: Building2 },
-  { label: 'Aptitude', href: '/prep/aptitude', icon: Brain },
-  { label: 'Coding', href: '/prep/coding', icon: Code2 },
-  { label: 'CS Subjects', href: '/prep/cs-subjects', icon: BookOpen },
-  { label: 'Interview', href: '/prep/interview', icon: Users },
+const mainLinks = [
+  { label: 'Dashboard', to: '/dashboard', icon: Home },
+  { label: 'Practice', to: '/practice/aptitude', icon: GraduationCap },
+  { label: 'Tests', to: '/tests', icon: CheckSquare },
+  { label: 'Interview', to: '/interview', icon: User },
 ];
 
-export default function Sidebar({ isOpen, onClose }) {
-  const handleNavClick = () => {
-    if (onClose) {
-      onClose();
-    }
-  };
+const secondaryLinks = [
+  { label: 'Bookmarks', to: '/bookmarks', icon: Bookmark },
+  { label: 'Notes', to: '/notes', icon: FileText },
+  { label: 'My Activity', to: '/recent-practice', icon: Activity },
+  { label: 'Leaderboard', to: '/leaderboard', icon: Trophy },
+];
 
+const contributeLinks = [
+  { label: 'Submit Question', to: '/contribute/question', icon: PlusSquare },
+  { label: 'Share Experience', to: '/contribute/experience', icon: Share2 },
+  { label: 'Upload Paper', to: '/contribute/paper', icon: Upload },
+  { label: 'TPO Panel', to: '/tpo', icon: Shield },
+  { label: 'Profile', to: '/profile', icon: User },
+];
+
+function NavItem({ item }) {
+  const Icon = item.icon;
   return (
-    <>
-      {/* Mobile Drawer Backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden backdrop-blur-sm transition-opacity"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-      )}
+    <NavLink
+      to={item.to}
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-4 py-2.5 mx-3 rounded-lg text-sm font-medium transition-colors ${
+          isActive
+            ? 'bg-[#Edf4F0] text-[#16793A] font-semibold'
+            : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'
+        }`
+      }
+    >
+      <Icon className="w-5 h-5" />
+      {item.label}
+    </NavLink>
+  );
+}
 
-      {/* Sidebar Container */}
-      <aside
-        className={`
-          fixed top-0 left-0 bottom-0 z-50 w-64 bg-bg-primary border-r border-border p-2 flex flex-col justify-between
-          transition-transform duration-200 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0 md:static md:z-auto md:min-h-[calc(100vh-4rem)] md:w-64 md:flex-shrink-0
-        `}
-      >
-        <div>
-          {/* Mobile Header with Close Button */}
-          <div className="flex items-center justify-between p-1 mb-2 md:hidden border-b border-border">
-            <span className="font-bold text-accent text-lg">Menu</span>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close menu"
-              className="p-1 text-text-secondary hover:text-text-primary rounded-pill focus:outline-none focus:ring-2 focus:ring-accent"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+export default function Sidebar() {
+  return (
+    <aside className="w-[260px] bg-bg-app border-r border-border/40 h-screen sticky top-0 flex flex-col z-20 shrink-0">
+      {/* Logo */}
+      <div className="h-20 flex items-center px-6 pt-4">
+        <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center mr-3 shrink-0 shadow-sm">
+          <div className="w-3 h-3 bg-yellow-400 rounded-sm"></div>
+        </div>
+        <span className="text-xl font-bold text-[#16793A] tracking-tight">PlacePro</span>
+      </div>
 
-          {/* Navigation Links */}
-          <nav className="space-y-1">
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.href}
-                  to={item.href}
-                  end={item.href === '/'}
-                  onClick={handleNavClick}
-                  className={({ isActive }) => `
-                    flex items-center gap-2 px-2 py-1.5 text-sm font-medium rounded-card transition-colors
-                    ${
-                      isActive
-                        ? 'bg-accent/10 text-accent font-semibold'
-                        : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary'
-                    }
-                  `}
-                >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-6 flex flex-col gap-6 no-scrollbar">
+        {/* Main Links */}
+        <nav className="flex flex-col gap-1.5 mt-2">
+          {mainLinks.map((item) => (
+            <NavItem key={item.to} item={item} />
+          ))}
+          {secondaryLinks.map((item) => (
+            <NavItem key={item.to} item={item} />
+          ))}
+        </nav>
+
+        {/* Contribute Section */}
+        <div className="mt-4 mb-2">
+          <h4 className="px-4 text-[11px] font-bold text-text-secondary uppercase tracking-wider mb-2">
+            CONTRIBUTE
+          </h4>
+          <nav className="flex flex-col gap-1.5">
+            {contributeLinks.map((item) => (
+              <NavItem key={item.to} item={item} />
+            ))}
           </nav>
         </div>
+      </div>
 
-        {/* Sidebar Footer / Info (Optional aesthetic touch) */}
-        <div className="p-2 border-t border-border mt-auto hidden md:block text-xs text-text-secondary">
-          <p className="font-medium text-text-primary">PlacePro v1.0</p>
-          <p>Placement Prep Suite</p>
+      {/* College Footer */}
+      <div className="p-6 relative overflow-hidden bg-bg-app mt-auto">
+        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at bottom right, var(--tw-colors-accent) 0%, transparent 60%)' }}></div>
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+             <img src="/rmkec-logo.png" alt="RMKEC Logo" className="w-full h-full object-contain" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-text-secondary uppercase tracking-wide font-semibold">Built for</span>
+            <span className="text-sm font-bold text-text-primary leading-tight">RMK Engineering<br/>College</span>
+          </div>
         </div>
-      </aside>
-    </>
+      </div>
+    </aside>
   );
 }

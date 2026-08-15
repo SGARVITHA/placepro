@@ -9,25 +9,35 @@ export function useAuth() {
   useEffect(() => {
     let isMounted = true;
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session: initialSession }, error }) => {
-      if (isMounted) {
-        if (error) {
-          console.error('Error fetching session:', error);
+    const handleSession = async (currentSession) => {
+      if (currentSession && !currentSession.user.email.endsWith('@rmkec.ac.in')) {
+        await supabase.auth.signOut();
+        if (isMounted) {
+          setSession(null);
+          setUser(null);
+          setLoading(false);
         }
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-        setLoading(false);
+        // Dispatch custom event for Login page to catch
+        window.dispatchEvent(new CustomEvent('auth_domain_error'));
+        return;
       }
-    });
 
-    // Subscribe to auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
       if (isMounted) {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         setLoading(false);
       }
+    };
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session: initialSession }, error }) => {
+      if (error) console.error('Error fetching session:', error);
+      handleSession(initialSession);
+    });
+
+    // Subscribe to auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      handleSession(currentSession);
     });
 
     return () => {

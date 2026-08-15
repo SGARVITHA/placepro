@@ -1,133 +1,74 @@
 import React from 'react';
-import { useParams, useLocation, Link } from 'react-router-dom';
-import Breadcrumb from '../../components/layout/Breadcrumb';
-import MetadataRow from '../../components/questions/MetadataRow';
-import QuestionBlock from '../../components/questions/QuestionBlock';
-import SolutionBlock from '../../components/questions/SolutionBlock';
-import { useQuestionDetail } from '../../hooks/useContentQuery';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { getCompany, getCategory, getTopic, getQuestion } from '../../data/db';
+import QuestionDetailLayout from '../../components/questions/QuestionDetailLayout';
+
 export default function QuestionDetail() {
-  const { companyId, categorySlug, sectionId, topicId, questionId, id } = useParams();
-  const targetQuestionId = questionId || id;
-  const location = useLocation();
+  const { companyId, categoryId, topicId, questionId } = useParams();
+  const navigate = useNavigate();
 
-  const {
-    data: questionData,
-    isLoading,
-    error,
-  } = useQuestionDetail(targetQuestionId);
+  const company = getCompany(companyId);
+  const category = getCategory(companyId, categoryId);
+  const topic = getTopic(companyId, categoryId, topicId);
+  const question = getQuestion(companyId, categoryId, topicId, questionId);
 
-  const isCompanyContext = Boolean(companyId);
-
-  // Construct back URL to previous Question List route (minus questionId)
-  const backUrl = isCompanyContext
-    ? `/company/${companyId}/${categorySlug}/${sectionId}/${topicId}`
-    : `/prep/${categorySlug}/${sectionId}/${topicId}`;
-
-  // Derive labels for breadcrumb
-  const topicName = questionData?.topic_name || location.state?.topicName || 'Topic';
-  const categoryName = questionData?.category || location.state?.categoryName || 'Category';
-  const companyName = questionData?.company_name || location.state?.companyName || 'Company';
-  const sectionName = location.state?.sectionName || 'Section';
-
-  const breadcrumbPath = isCompanyContext
-    ? [
-        { label: 'Dashboard', href: '/' },
-        { label: 'Company Specific', href: '/company' },
-        { label: companyName, href: `/company/${companyId}` },
-        { label: categoryName, href: `/company/${companyId}/${categorySlug}` },
-        { label: sectionName, href: `/company/${companyId}/${categorySlug}/${sectionId}` },
-        { label: topicName, href: `/company/${companyId}/${categorySlug}/${sectionId}/${topicId}` },
-        { label: 'Question', href: location.pathname },
-      ]
-    : [
-        { label: 'Dashboard', href: '/' },
-        { label: categoryName, href: `/prep/${categorySlug}` },
-        { label: sectionName, href: `/prep/${categorySlug}/${sectionId}` },
-        { label: topicName, href: `/prep/${categorySlug}/${sectionId}/${topicId}` },
-        { label: 'Question', href: location.pathname },
-      ];
-
-  if (isLoading) {
+  if (!company || !category || !topic || !question) {
     return (
-      <div className="max-w-3xl mx-auto p-4 md:p-6 space-y-6">
-        <Breadcrumb path={breadcrumbPath} />
-        <div
-          className="animate-pulse space-y-6"
-          aria-busy="true"
-          aria-label="Loading question details"
-        >
-          {/* Metadata Skeleton */}
-          <div className="flex gap-2">
-            <div className="h-6 bg-bg-secondary rounded-pill w-20"></div>
-            <div className="h-6 bg-bg-secondary rounded-pill w-24"></div>
-            <div className="h-6 bg-bg-secondary rounded-pill w-16"></div>
-          </div>
-
-          {/* Question Skeleton */}
-          <div className="space-y-3">
-            <div className="h-7 bg-bg-secondary rounded w-32"></div>
-            <div className="h-4 bg-bg-secondary rounded w-full"></div>
-            <div className="h-4 bg-bg-secondary rounded w-11/12"></div>
-            <div className="h-4 bg-bg-secondary rounded w-4/5"></div>
-          </div>
-
-          {/* Solution Skeleton */}
-          <div className="border-t border-border pt-6 space-y-3">
-            <div className="h-7 bg-bg-secondary rounded w-32"></div>
-            <div className="h-4 bg-bg-secondary rounded w-full"></div>
-            <div className="h-4 bg-bg-secondary rounded w-full"></div>
-            <div className="h-4 bg-bg-secondary rounded w-3/4"></div>
-          </div>
-        </div>
+      <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+        <h2 className="text-2xl font-bold">Question Not Found</h2>
+        <p className="text-text-secondary">The requested question could not be found.</p>
+        <Link to={`/companies/${companyId}/${categoryId}/${topicId}`} className="text-accent hover:underline font-medium">
+          Return to Questions
+        </Link>
       </div>
     );
   }
 
-  if (error || !questionData) {
-    return (
-      <div className="max-w-3xl mx-auto p-4 md:p-6 space-y-6">
-        <Breadcrumb path={breadcrumbPath} />
-        <div
-          role="alert"
-          aria-live="assertive"
-          className="bg-bg-primary border border-border rounded-card p-6 md:p-8 text-center space-y-4 max-w-md mx-auto my-8 shadow-sm"
-        >
-          <h1 className="text-xl font-bold text-text-primary tracking-tight">
-            Question not found
-          </h1>
-          <p className="text-text-secondary text-sm">
-            {typeof error === 'string'
-              ? error
-              : error?.message || "The question you're looking for doesn't exist or has been removed."}
-          </p>
-          <div className="pt-2">
-            <Link
-              to={backUrl}
-              className="inline-flex items-center justify-center px-4 py-2 bg-accent text-white font-medium rounded-pill hover:bg-accent/90 transition-colors text-sm"
-            >
-              Back to Question List
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const breadcrumbs = [
+    { label: 'Dashboard', to: '/dashboard' },
+    { label: 'Company Specific', to: '/companies' },
+    { label: company.name, to: `/companies/${company.id}` },
+    { label: category.name, to: `/companies/${company.id}/${category.id}` },
+    { label: topic.name, to: `/companies/${company.id}/${category.id}/${topic.id}` },
+    { label: question.title }
+  ];
+
+  const tags = [
+    { label: question.difficulty, type: 'difficulty' },
+    { label: company.name, type: 'company' },
+    { label: question.year, type: 'year' },
+    { label: topic.name, type: 'topic' },
+    { label: category.name, type: 'category' },
+  ];
+
+  const currentIndex = topic.questions.findIndex(q => q.id === question.id);
+  const disablePrevious = currentIndex <= 0;
+  const disableNext = currentIndex >= topic.questions.length - 1;
+
+  const handlePrevious = () => {
+    if (!disablePrevious) {
+      const prevId = topic.questions[currentIndex - 1].id;
+      navigate(`/companies/${companyId}/${categoryId}/${topicId}/${prevId}`);
+    }
+  };
+
+  const handleNext = () => {
+    if (!disableNext) {
+      const nextId = topic.questions[currentIndex + 1].id;
+      navigate(`/companies/${companyId}/${categoryId}/${topicId}/${nextId}`);
+    }
+  };
 
   return (
-    <main className="max-w-3xl mx-auto p-4 md:p-6 space-y-6">
-      <Breadcrumb path={breadcrumbPath} />
-
-      <MetadataRow
-        difficulty={questionData.difficulty}
-        companyName={questionData.company_name}
-        yearAsked={questionData.year_asked}
-        category={questionData.category}
-        topicName={questionData.topic_name}
-      />
-
-      <QuestionBlock questionText={questionData.question_text} />
-
-      <SolutionBlock solutionText={questionData.solution_text} />
-    </main>
+    <QuestionDetailLayout
+      question={question}
+      breadcrumbs={breadcrumbs}
+      tags={tags}
+      onPrevious={handlePrevious}
+      onNext={handleNext}
+      disablePrevious={disablePrevious}
+      disableNext={disableNext}
+      topicName={topic.name}
+    />
   );
 }

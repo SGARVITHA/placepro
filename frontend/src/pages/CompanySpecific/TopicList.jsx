@@ -1,132 +1,88 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import ListView from '../../components/cards/ListView';
-import Card from '../../components/cards/Card';
-import Breadcrumb from '../../components/layout/Breadcrumb';
-import { useTopics, useCategories, useCompanies } from '../../hooks/useContentQuery';
+import React, { useState, useMemo } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import Breadcrumb from '../../components/ui/Breadcrumb';
+import SearchInput from '../../components/ui/SearchInput';
+import { getCompany, getCategory } from '../../data/db';
 
 export default function TopicList() {
-  const { companyId, categorySlug, sectionId } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { companyId, categoryId } = useParams();
+  const company = getCompany(companyId);
+  const category = getCategory(companyId, categoryId);
+  const [search, setSearch] = useState('');
 
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const breadcrumbs = company && category ? [
+    { label: 'Dashboard', to: '/dashboard' },
+    { label: 'Company Specific', to: '/companies' },
+    { label: company.name, to: `/companies/${company.id}` },
+    { label: category.name }
+  ] : [];
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput);
-    }, 300);
+  const filteredTopics = useMemo(() => {
+    if (!category) return [];
+    if (!search.trim()) return category.topics;
+    const q = search.toLowerCase();
+    return category.topics.filter(t => t.name.toLowerCase().includes(q));
+  }, [search, category]);
 
-    return () => clearTimeout(timer);
-  }, [searchInput]);
-
-  // Fetch categories to resolve categorySlug -> categoryId and categoryName
-  const { data: categories, isLoading: isCategoriesLoading } = useCategories();
-  const category = categories?.find(
-    (cat) => cat.name.toLowerCase().replace(/\s+/g, '-') === categorySlug
-  );
-  const categoryId = category?.id;
-  const categoryName = category?.name || (isCategoriesLoading ? '...' : 'Category');
-
-  // Fetch companies if in Company Specific context
-  const { data: companies, isLoading: isCompaniesLoading } = useCompanies();
-  const company = companyId ? companies?.find((c) => String(c.id) === String(companyId)) : null;
-  const companyName = company ? company.name : isCompaniesLoading ? '...' : 'Company';
-
-  // Section name passed from state or fallback
-  const sectionName = location.state?.sectionName || 'Section';
-
-  // Fetch topics using categoryId, optional companyId, optional sectionId (as parentTopicId)
-  const {
-    data: topics,
-    isLoading: isTopicsLoading,
-    error,
-    refetch,
-  } = useTopics({
-    categoryId,
-    companyId: companyId || undefined,
-    parentTopicId: sectionId || undefined,
-    search: debouncedSearch,
-  });
-
-  // Construct Breadcrumb path
-  const isCompanyContext = Boolean(companyId);
-  const breadcrumbPath = isCompanyContext
-    ? [
-        { label: 'Dashboard', href: '/' },
-        { label: 'Company Specific', href: '/company' },
-        { label: companyName, href: `/company/${companyId}` },
-        {
-          label: categoryName,
-          href: `/company/${companyId}/${categorySlug}`,
-        },
-      ]
-    : [
-        { label: 'Dashboard', href: '/' },
-        { label: categoryName, href: `/prep/${categorySlug}` },
-      ];
-
-  if (sectionId) {
-    const sectionHref = isCompanyContext
-      ? `/company/${companyId}/${categorySlug}/${sectionId}`
-      : `/prep/${categorySlug}/${sectionId}`;
-    breadcrumbPath.push({ label: sectionName, href: sectionHref });
+  if (!company || !category) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+        <h2 className="text-2xl font-bold">Category Not Found</h2>
+        <p className="text-text-secondary">The requested preparation category could not be found.</p>
+        <Link to={`/companies/${companyId || ''}`} className="text-accent hover:underline font-medium">Return to Company</Link>
+      </div>
+    );
   }
 
-  const handleCardClick = (topic) => {
-    if (topic.has_children) {
-      const nextPath = isCompanyContext
-        ? `/company/${companyId}/${categorySlug}/${topic.id}`
-        : `/prep/${categorySlug}/${topic.id}`;
-      navigate(nextPath, { state: { sectionName: topic.name } });
-    } else {
-      const currentSectionId = sectionId || topic.parent_topic_id || topic.id;
-      const questionListPath = isCompanyContext
-        ? `/company/${companyId}/${categorySlug}/${currentSectionId}/${topic.id}`
-        : `/prep/${categorySlug}/${currentSectionId}/${topic.id}`;
-      navigate(questionListPath, { state: { topicName: topic.name, sectionName } });
-    }
-  };
-
   return (
-    <div className="space-y-3">
-      <Breadcrumb path={breadcrumbPath} />
+    <div className="max-w-6xl mx-auto flex flex-col gap-6">
+      <Breadcrumb items={breadcrumbs} />
 
-      <div>
-        <h1 className="text-2xl font-semibold text-text-primary tracking-tight">
-          {sectionId ? sectionName : categoryName}
+      <div className="mb-2">
+        <h1 className="text-[28px] font-bold text-text-primary tracking-tight mb-1">
+          {category.name} — {company.name}
         </h1>
-        <p className="text-text-secondary text-sm mt-0.5">
-          {sectionId
-            ? 'Select a topic to start practicing questions'
-            : 'Select a section to view topic breakdown'}
-        </p>
+        <p className="text-text-secondary text-base">Choose a topic to start practicing</p>
       </div>
 
-      <ListView
-        items={topics || []}
-        renderItem={(topic) => (
-          <Card
-            key={topic.id}
-            variant="topic"
-            name={topic.name}
-            description={topic.description}
-            onClick={() => handleCardClick(topic)}
-          />
+      <div className="mb-2">
+        <SearchInput 
+          placeholder="Search topics..." 
+          value={search} 
+          onChange={setSearch} 
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filteredTopics.map(topic => {
+          const Icon = topic.icon;
+          const qCount = topic.questions?.length || 0;
+          return (
+            <Link 
+              key={topic.id}
+              to={`/companies/${company.id}/${category.id}/${topic.id}`}
+              className="bg-bg-primary border border-border rounded-[14px] p-5 hover:shadow-card-hover transition-all group flex flex-col justify-between min-h-[160px]"
+            >
+              <div>
+                <div className="w-10 h-10 bg-accent-light text-accent rounded-lg flex items-center justify-center mb-4">
+                  <Icon className="w-[18px] h-[18px]" />
+                </div>
+                <h3 className="font-bold text-text-primary text-[15px] leading-tight mb-1">{topic.name}</h3>
+                <p className="text-xs text-text-secondary font-medium">{qCount} questions</p>
+              </div>
+              <div className="flex justify-end mt-2">
+                <ArrowRight className="w-5 h-5 text-accent transform group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          );
+        })}
+        {filteredTopics.length === 0 && (
+          <div className="col-span-full py-12 text-center text-text-secondary">
+            No topics found matching "{search}".
+          </div>
         )}
-        searchPlaceholder="Search topics..."
-        searchValue={searchInput}
-        onSearchChange={setSearchInput}
-        isLoading={isTopicsLoading || isCategoriesLoading}
-        error={error}
-        onRetry={refetch}
-        emptyMessage={
-          sectionId
-            ? 'No topics added yet for this section'
-            : 'No sections added yet for this category'
-        }
-      />
+      </div>
     </div>
   );
 }

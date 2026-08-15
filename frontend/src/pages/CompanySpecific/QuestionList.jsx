@@ -1,134 +1,121 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import Breadcrumb from '../../components/layout/Breadcrumb';
-import SearchBar from '../../components/common/SearchBar';
-import FilterBar from '../../components/questions/FilterBar';
-import QuestionCard from '../../components/questions/QuestionCard';
-import LoadingState from '../../components/common/LoadingState';
-import EmptyState from '../../components/common/EmptyState';
-import { useQuestions, useCategories, useCompanies } from '../../hooks/useContentQuery';
+import React, { useState, useMemo } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import Breadcrumb from '../../components/ui/Breadcrumb';
+import SearchInput from '../../components/ui/SearchInput';
+import FilterPill from '../../components/ui/FilterPill';
+import { getCompany, getCategory, getTopic } from '../../data/db';
+
+const DIFFICULTIES = ['All', 'Easy', 'Medium', 'Hard'];
 
 export default function QuestionList() {
-  const { companyId, categorySlug, sectionId, topicId } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { companyId, categoryId, topicId } = useParams();
+  const company = getCompany(companyId);
+  const category = getCategory(companyId, categoryId);
+  const topic = getTopic(companyId, categoryId, topicId);
+  
+  const [search, setSearch] = useState('');
+  const [activeFilter, setActiveFilter] = useState('All');
 
-  const [difficulty, setDifficulty] = useState('all');
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const breadcrumbs = company && category && topic ? [
+    { label: 'Dashboard', to: '/dashboard' },
+    { label: 'Company Specific', to: '/companies' },
+    { label: company.name, to: `/companies/${company.id}` },
+    { label: category.name, to: `/companies/${company.id}/${category.id}` },
+    { label: topic.name }
+  ] : [];
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchInput]);
+  const filteredQuestions = useMemo(() => {
+    if (!topic) return [];
+    return (topic.questions || []).filter(q => {
+      let passesFilter = true;
+      if (activeFilter !== 'All') {
+        passesFilter = q.difficulty === activeFilter;
+      }
+      let passesSearch = true;
+      if (search.trim()) {
+        passesSearch = q.title.toLowerCase().includes(search.toLowerCase());
+      }
+      return passesFilter && passesSearch;
+    });
+  }, [search, activeFilter, topic]);
 
-  const {
-    data: questions,
-    isLoading,
-    error,
-    refetch,
-  } = useQuestions({
-    topicId,
-    difficulty: difficulty === 'all' ? undefined : difficulty,
-    search: debouncedSearch,
-  });
+  if (!company || !category || !topic) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+        <h2 className="text-2xl font-bold">Topic Not Found</h2>
+        <p className="text-text-secondary">The requested topic could not be found.</p>
+        <Link to={`/companies/${companyId}/${categoryId}`} className="text-accent hover:underline font-medium">Return to Topics</Link>
+      </div>
+    );
+  }
 
-  const { data: categories } = useCategories();
-  const category = categories?.find(
-    (c) => c.name.toLowerCase().replace(/\s+/g, '-') === categorySlug
-  );
-  const categoryName = category?.name || 'Category';
-
-  const { data: companies } = useCompanies();
-  const company = companyId ? companies?.find((c) => String(c.id) === String(companyId)) : null;
-  const companyName = company ? company.name : 'Company';
-
-  const topicName = location.state?.topicName || 'Questions';
-  const sectionName = location.state?.sectionName || 'Section';
-
-  const isCompanyContext = Boolean(companyId);
-
-  const breadcrumbPath = isCompanyContext
-    ? [
-        { label: 'Dashboard', href: '/' },
-        { label: 'Company Specific', href: '/company' },
-        { label: companyName, href: `/company/${companyId}` },
-        { label: categoryName, href: `/company/${companyId}/${categorySlug}` },
-        { label: sectionName, href: `/company/${companyId}/${categorySlug}/${sectionId}` },
-        { label: topicName, href: location.pathname },
-      ]
-    : [
-        { label: 'Dashboard', href: '/' },
-        { label: categoryName, href: `/prep/${categorySlug}` },
-        { label: sectionName, href: `/prep/${categorySlug}/${sectionId}` },
-        { label: topicName, href: location.pathname },
-      ];
-
-  const handleQuestionClick = (question) => {
-    const detailPath = `${location.pathname}/${question.id}`;
-    navigate(detailPath, { state: { question, topicName, sectionName } });
+  const getDifficultyStyles = (diff) => {
+    switch(diff) {
+      case 'Easy': return 'bg-green-50 text-green-700';
+      case 'Medium': return 'bg-orange-50 text-orange-600';
+      case 'Hard': return 'bg-red-50 text-red-600';
+      default: return 'bg-gray-50 text-gray-600';
+    }
   };
-
-  const handleResetFilters = () => {
-    setDifficulty('all');
-    setSearchInput('');
-  };
-
-  const pageTitle = isCompanyContext ? `${topicName} — ${companyName}` : topicName;
 
   return (
-    <div className="space-y-3">
-      <Breadcrumb path={breadcrumbPath} />
+    <div className="max-w-6xl mx-auto flex flex-col gap-6">
+      <Breadcrumb items={breadcrumbs} />
 
-      <div>
-        <h1 className="text-2xl font-semibold text-text-primary tracking-tight">
-          {pageTitle}
+      <div className="mb-2">
+        <h1 className="text-[28px] font-bold text-text-primary tracking-tight mb-1">
+          {topic.name} — {company.name}
         </h1>
-        <p className="text-text-secondary text-sm mt-0.5">
-          Practice questions curated for placement preparation
-        </p>
+        <p className="text-text-secondary text-base">Practice questions based on {topic.name}.</p>
       </div>
 
-      <div className="space-y-2">
-        <SearchBar
-          value={searchInput}
-          onChange={(e) => setSearchInput(typeof e === 'string' ? e : e.target.value)}
-          placeholder="Search questions..."
+      <div className="flex flex-col gap-5 mb-2">
+        <SearchInput 
+          placeholder="Search questions..." 
+          value={search} 
+          onChange={setSearch} 
         />
-        <FilterBar value={difficulty} onChange={setDifficulty} />
-      </div>
-
-      {isLoading ? (
-        <LoadingState count={5} variant="row" />
-      ) : error ? (
-        <EmptyState
-          message={typeof error === 'string' ? error : error.message || 'Failed to load questions'}
-          actionLabel="Retry"
-          onAction={refetch}
-        />
-      ) : !questions || questions.length === 0 ? (
-        difficulty === 'all' && !debouncedSearch ? (
-          <EmptyState message="No questions added yet" />
-        ) : (
-          <EmptyState
-            message="No questions match your filters"
-            actionLabel="Reset filters"
-            onAction={handleResetFilters}
-          />
-        )
-      ) : (
-        <div className="space-y-2">
-          {questions.map((q) => (
-            <QuestionCard
-              key={q.id}
-              question={q}
-              onClick={() => handleQuestionClick(q)}
+        
+        <div className="flex flex-wrap items-center gap-3">
+          {DIFFICULTIES.map(filter => (
+            <FilterPill 
+              key={filter}
+              label={filter}
+              active={activeFilter === filter}
+              onClick={() => setActiveFilter(filter)}
             />
           ))}
         </div>
-      )}
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {filteredQuestions.map(q => (
+          <Link 
+            key={q.id}
+            to={`/companies/${company.id}/${category.id}/${topic.id}/${q.id}`}
+            className="flex items-center bg-bg-primary border border-border rounded-xl px-5 py-4 hover:shadow-card-hover transition-shadow group"
+          >
+            <div className="flex-1 flex items-center gap-5">
+              <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${getDifficultyStyles(q.difficulty)}`}>
+                {q.difficulty}
+              </span>
+              <h3 className="font-medium text-[15px] text-text-primary group-hover:text-accent transition-colors line-clamp-1">{q.title}</h3>
+            </div>
+            
+            <div className="flex items-center gap-6 ml-4 shrink-0">
+              <span className="text-sm font-medium text-text-secondary">{q.year}</span>
+              <ArrowRight className="w-5 h-5 text-accent transform group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+        ))}
+        
+        {filteredQuestions.length === 0 && (
+          <div className="py-12 text-center text-text-secondary">
+            No questions found matching your criteria.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -4,8 +4,7 @@ import Breadcrumb from '../../components/layout/Breadcrumb';
 import MetadataRow from '../../components/questions/MetadataRow';
 import QuestionBlock from '../../components/questions/QuestionBlock';
 import SolutionBlock from '../../components/questions/SolutionBlock';
-import { useContentQuery } from '../../hooks/useContentQuery';
-
+import { useQuestionDetail } from '../../hooks/useContentQuery';
 export default function QuestionDetail() {
   const { companyId, categorySlug, sectionId, topicId, questionId, id } = useParams();
   const targetQuestionId = questionId || id;
@@ -15,7 +14,7 @@ export default function QuestionDetail() {
     data: questionData,
     isLoading,
     error,
-  } = useContentQuery('questionDetail', { questionId: targetQuestionId });
+  } = useQuestionDetail(targetQuestionId);
 
   const isCompanyContext = Boolean(companyId);
 

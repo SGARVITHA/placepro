@@ -45,14 +45,4 @@ export function useQuestionDetail(id) {
   });
 }
 
-export function useContentQuery(queryType, params = {}) {
-  if (queryType === 'questionDetail') {
-    const id = params?.questionId || params?.id;
-    return useQuestionDetail(id);
-  }
-  return useQuery({
-    queryKey: [queryType, params],
-    enabled: false,
-  });
-}
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton';
-import { Lock, Shield } from 'lucide-react';
+import { Lock } from 'lucide-react';
 
 export default function Login() {
   const { session, signInWithGoogle } = useAuth();
@@ -79,9 +79,7 @@ export default function Login() {
 
         {/* College Branding */}
         <div className="relative z-10 flex items-center gap-4 pl-8 mb-4">
-          <div className="w-16 h-16 bg-white rounded-xl shadow-sm border border-border/50 flex items-center justify-center relative z-10 shrink-0">
-             <Shield className="w-8 h-8 text-accent" />
-          </div>
+          <img src="/rmkec-logo.png" alt="RMKEC Logo" className="w-16 h-16 object-contain shrink-0" />
           <div className="flex flex-col">
             <span className="text-xs text-text-secondary uppercase tracking-wide font-medium">Built for</span>
             <span className="text-lg font-bold text-text-primary leading-tight">RMK Engineering College</span>

@@ -1,16 +1,15 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
-  Home, Building2, GraduationCap, CheckSquare, User, 
+  Home, GraduationCap, CheckSquare, User, 
   Bookmark, FileText, Activity, Trophy, 
-  PlusSquare, Share2, Upload, Shield
+  PlusSquare, Share2, Upload
 } from 'lucide-react';
 
 const mainLinks = [
   { label: 'Dashboard', to: '/dashboard', icon: Home },
   { label: 'Practice', to: '/practice/aptitude', icon: GraduationCap },
   { label: 'Tests', to: '/tests', icon: CheckSquare },
-  { label: 'Interview', to: '/interview', icon: User },
 ];
 
 const secondaryLinks = [
@@ -24,7 +23,6 @@ const contributeLinks = [
   { label: 'Submit Question', to: '/contribute/question', icon: PlusSquare },
   { label: 'Share Experience', to: '/contribute/experience', icon: Share2 },
   { label: 'Upload Paper', to: '/contribute/paper', icon: Upload },
-  { label: 'TPO Panel', to: '/tpo', icon: Shield },
   { label: 'Profile', to: '/profile', icon: User },
 ];
 

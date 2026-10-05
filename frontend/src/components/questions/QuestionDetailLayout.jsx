@@ -6,8 +6,9 @@ import Breadcrumb from '../ui/Breadcrumb';
 
 export default function QuestionDetailLayout({ 
   question, 
+  title,
   breadcrumbs, 
-  tags, 
+  tags = [], 
   onPrevious, 
   onNext,
   disablePrevious,
@@ -20,7 +21,9 @@ export default function QuestionDetailLayout({
 
   useEffect(() => {
     if (question) {
+      // TODO: migrate to backend user state
       setIsBookmarked(UserService.isBookmarked(question.id));
+      // TODO: migrate to backend user state
       setIsSolved(UserService.isSolved(question.id));
     }
   }, [question]);
@@ -28,17 +31,25 @@ export default function QuestionDetailLayout({
   if (!question) return null;
 
   const handleBookmark = () => {
+    // TODO: migrate to backend user state
     UserService.toggleBookmark(question.id);
     setIsBookmarked(!isBookmarked);
   };
 
   const handleSolve = () => {
+    // TODO: migrate to backend user state
     UserService.toggleSolved(question.id);
     setIsSolved(!isSolved);
   };
 
+  const displayTitle = title || question.title || (
+    question.question_text
+      ? (question.question_text.length > 50 ? `${question.question_text.substring(0, 50)}...` : question.question_text)
+      : (question.questionText ? (question.questionText.length > 50 ? `${question.questionText.substring(0, 50)}...` : question.questionText) : 'Question')
+  );
+
   const handleAddNote = () => {
-    navigate(`/notes?topic=${encodeURIComponent(topicName || '')}&title=${encodeURIComponent(question.title)}`);
+    navigate(`/notes?topic=${encodeURIComponent(topicName || '')}&title=${encodeURIComponent(displayTitle)}`);
   };
 
   return (
@@ -48,7 +59,7 @@ export default function QuestionDetailLayout({
       <div className="bg-bg-primary border border-border rounded-xl p-8 shadow-sm">
         <div className="flex items-start justify-between mb-4">
           <h1 className="text-[28px] font-bold text-text-primary tracking-tight leading-tight">
-            {question.title}
+            {displayTitle}
           </h1>
           <button 
             onClick={handleBookmark}
@@ -59,35 +70,41 @@ export default function QuestionDetailLayout({
         </div>
 
         <div className="flex flex-wrap items-center gap-3 mb-10">
-          {tags.map((tag, idx) => (
-            <span 
-              key={idx} 
-              className={`px-3 py-1 text-xs font-medium rounded-full ${
-                tag.type === 'difficulty' && tag.label === 'Easy' ? 'bg-green-50 text-green-700' :
-                tag.type === 'difficulty' && tag.label === 'Medium' ? 'bg-orange-50 text-orange-700' :
-                tag.type === 'difficulty' && tag.label === 'Hard' ? 'bg-red-50 text-red-700' :
-                'bg-gray-100 text-gray-700'
-              }`}
-            >
-              {tag.label}
-            </span>
-          ))}
+          {tags.map((tag, idx) => {
+            const isDiff = tag.type === 'difficulty';
+            const labelLower = String(tag.label).toLowerCase();
+            return (
+              <span 
+                key={idx} 
+                className={`px-3 py-1 text-xs font-medium rounded-full ${
+                  isDiff && labelLower === 'easy' ? 'bg-green-50 text-green-700' :
+                  isDiff && labelLower === 'medium' ? 'bg-orange-50 text-orange-700' :
+                  isDiff && labelLower === 'hard' ? 'bg-red-50 text-red-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}
+              >
+                {tag.label}
+              </span>
+            );
+          })}
         </div>
 
         <div className="space-y-8">
           <div>
             <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">Question</h4>
             <p className="text-[15px] text-text-primary leading-relaxed whitespace-pre-wrap">
-              {question.questionText}
+              {question.question_text || question.questionText}
             </p>
           </div>
 
-          <div>
-            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">Solution</h4>
-            <p className="text-[15px] text-text-primary leading-relaxed whitespace-pre-wrap">
-              {question.solution}
-            </p>
-          </div>
+          {(question.solution_text || question.solution) && (
+            <div>
+              <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">Solution</h4>
+              <p className="text-[15px] text-text-primary leading-relaxed whitespace-pre-wrap">
+                {question.solution_text || question.solution}
+              </p>
+            </div>
+          )}
 
           {(question.exampleInput || question.exampleOutput) && (
             <div>

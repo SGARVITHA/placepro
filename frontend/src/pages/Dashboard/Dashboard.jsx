@@ -42,13 +42,13 @@ export default function Dashboard() {
           <div className="bg-bg-primary rounded-card border border-border p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-text-primary">Recent Companies</h3>
-              <Link to="/companies" className="text-sm font-medium text-accent hover:underline flex items-center">
+              <Link to="/company" className="text-sm font-medium text-accent hover:underline flex items-center">
                 View all <ChevronRight className="w-4 h-4 ml-0.5" />
               </Link>
             </div>
             <div className="flex flex-col gap-2">
               {recentCompanies.map(company => (
-                <Link key={company.id} to={`/companies/${company.id}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-bg-secondary transition-colors group">
+                <Link key={company.id} to={`/company/${company.id}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-bg-secondary transition-colors group">
                   <div className="flex items-center gap-3">
                     <img src={company.logo} alt={company.name} className="w-6 h-6 object-contain" />
                     <span className="font-medium text-text-primary">{company.name}</span>

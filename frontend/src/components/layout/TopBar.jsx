@@ -10,7 +10,7 @@ export default function TopBar() {
   const getPageTitle = () => {
     const path = location.pathname;
     if (path === '/dashboard' || path === '/') return 'Dashboard';
-    if (path.startsWith('/companies')) return 'Company Specific';
+    if (path.startsWith('/company')) return 'Company Specific';
     if (path.startsWith('/practice/aptitude')) return 'Aptitude Practice';
     if (path.startsWith('/practice/coding')) return 'Coding Practice';
     if (path.startsWith('/practice/cs-subjects')) return 'CS Subjects';

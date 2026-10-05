@@ -2,16 +2,15 @@ export const UserService = {
   getProfile: () => {
     const saved = localStorage.getItem('placepro_profile');
     if (saved) return JSON.parse(saved);
-    // Return mock default profile matching the screenshot
     return {
-      firstName: 'Sarvesh',
-      lastName: 'S B',
-      phone: '+91 98765 43210',
-      college: 'RMK Engineering College',
-      rollNumber: '1238221IT045',
-      fatherName: 'Balakrishnan S',
-      memberSince: '24 May 2024',
-      yearBranch: '2nd Year IT Student'
+      firstName: '',
+      lastName: '',
+      phone: '',
+      college: '',
+      rollNumber: '',
+      fatherName: '',
+      memberSince: '',
+      yearBranch: ''
     };
   },
   

@@ -9,7 +9,7 @@ export const dashboardCards = [
     iconColor: 'text-accent',
     iconBg: 'bg-accent-light',
     actionText: 'Explore Companies',
-    to: '/companies',
+    to: '/company',
     footer: null
   },
   {

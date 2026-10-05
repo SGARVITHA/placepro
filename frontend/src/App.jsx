@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
-import Companies from './pages/Companies/Companies';
+import CompanyList from './pages/CompanySpecific/CompanyList';
 import CompanyCategory from './pages/CompanySpecific/CompanyCategory';
-import TopicList from './pages/CompanySpecific/TopicList';
+import TopicBrowser from './pages/CompanySpecific/TopicBrowser';
 import QuestionList from './pages/CompanySpecific/QuestionList';
 import QuestionDetail from './pages/CompanySpecific/QuestionDetail';
 import InterviewPreparation from './pages/Interview/InterviewPreparation';
@@ -42,11 +42,11 @@ function App() {
         />
 
         <Route
-          path="/companies"
+          path="/company"
           element={
             <ProtectedRoute>
               <AuthenticatedLayout>
-                <Companies />
+                <CompanyList />
               </AuthenticatedLayout>
             </ProtectedRoute>
           }
@@ -54,7 +54,7 @@ function App() {
 
         {/* Company Specific Flow */}
         <Route
-          path="/companies/:companyId"
+          path="/company/:companyId"
           element={
             <ProtectedRoute>
               <AuthenticatedLayout>
@@ -64,17 +64,17 @@ function App() {
           }
         />
         <Route
-          path="/companies/:companyId/:categoryId"
+          path="/company/:companyId/:categoryId"
           element={
             <ProtectedRoute>
               <AuthenticatedLayout>
-                <TopicList />
+                <TopicBrowser />
               </AuthenticatedLayout>
             </ProtectedRoute>
           }
         />
         <Route
-          path="/companies/:companyId/:categoryId/:topicId"
+          path="/company/:companyId/:categoryId/:topicId"
           element={
             <ProtectedRoute>
               <AuthenticatedLayout>
@@ -84,7 +84,7 @@ function App() {
           }
         />
         <Route
-          path="/companies/:companyId/:categoryId/:topicId/:questionId"
+          path="/company/:companyId/:categoryId/:topicId/:questionId"
           element={
             <ProtectedRoute>
               <AuthenticatedLayout>

@@ -1,3 +1,5 @@
+import { bookmarkService } from '../services/bookmarkService';
+
 export const UserService = {
   getProfile: () => {
     const saved = localStorage.getItem('placepro_profile');
@@ -22,23 +24,25 @@ export const UserService = {
   },
 
   getBookmarks: () => {
-    const saved = localStorage.getItem('placepro_bookmarks');
-    return saved ? JSON.parse(saved) : [];
+    return bookmarkService.getBookmarkIds();
   },
 
-  toggleBookmark: (questionId) => {
-    let bookmarks = UserService.getBookmarks();
-    if (bookmarks.includes(questionId)) {
-      bookmarks = bookmarks.filter(id => id !== questionId);
-    } else {
-      bookmarks.push(questionId);
-    }
-    localStorage.setItem('placepro_bookmarks', JSON.stringify(bookmarks));
-    return bookmarks;
+  getBookmarkList: () => {
+    return bookmarkService.getBookmarks();
+  },
+
+  toggleBookmark: (questionId, metadata) => {
+    bookmarkService.toggleBookmark(questionId, metadata);
+    return bookmarkService.getBookmarkIds();
+  },
+
+  removeBookmark: (questionId) => {
+    bookmarkService.removeBookmark(questionId);
+    return bookmarkService.getBookmarkIds();
   },
 
   isBookmarked: (questionId) => {
-    return UserService.getBookmarks().includes(questionId);
+    return bookmarkService.isBookmarked(questionId);
   },
 
   getSolved: () => {

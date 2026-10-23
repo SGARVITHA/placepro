@@ -32,10 +32,10 @@ export function useTopics({ categoryId, companyId, parentTopicId, search } = {},
   });
 }
 
-export function useQuestions({ topicId, difficulty, search } = {}, options = {}) {
+export function useQuestions({ topicId, difficulty, search, companyId } = {}, options = {}) {
   return useQuery({
-    queryKey: ['questions', topicId, difficulty, search],
-    queryFn: () => getQuestions({ topicId, difficulty, search }),
+    queryKey: ['questions', topicId, difficulty, search, companyId],
+    queryFn: () => getQuestions({ topicId, difficulty, search, companyId }),
     enabled: Boolean(topicId),
     ...options,
   });

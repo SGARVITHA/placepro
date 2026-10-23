@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton';
 import { Lock } from 'lucide-react';
 
 export default function Login() {
-  const { session, signInWithGoogle } = useAuth();
+  const { session, signInWithGoogle, signInDevDemo, isMockMode } = useAuth();
   const location = useLocation();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -94,10 +94,12 @@ export default function Login() {
           
           {/* Logo */}
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center">
-              <div className="w-3.5 h-3.5 bg-yellow-400 rounded-sm"></div>
-            </div>
-            <span className="text-2xl font-bold text-accent tracking-tight">PlacePro</span>
+            <img 
+              src="/placepro-logo.png" 
+              alt="PlacePro Logo" 
+              className="w-12 h-12 rounded-xl object-contain shrink-0 shadow-sm" 
+            />
+            <span className="text-2xl font-bold text-[#16793A] tracking-tight">PlacePro</span>
           </div>
 
           <h2 className="text-2xl font-bold text-text-primary mb-2">Welcome back!</h2>
@@ -109,6 +111,22 @@ export default function Login() {
             signInWithGoogle={handleSignIn}
             loading={loading}
           />
+
+          {isMockMode && (
+            <div className="w-full mt-4 p-3 bg-[#E8F5E9] rounded-xl border border-[#16793A]/20 flex flex-col items-center gap-2">
+              <span className="text-[11px] font-semibold text-[#16793A] uppercase tracking-wider">
+                Frontend Development Mode Active
+              </span>
+              <button
+                type="button"
+                onClick={signInDevDemo}
+                className="w-full py-2 px-4 bg-[#16793A] hover:bg-[#12632F] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                id="btn-dev-login"
+              >
+                <span>Continue as Demo Student (RMKEC)</span>
+              </button>
+            </div>
+          )}
 
           <div className="flex items-center gap-2 mt-6 text-xs text-text-secondary">
             <Lock className="w-3.5 h-3.5" />

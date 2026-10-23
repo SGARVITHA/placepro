@@ -7,6 +7,7 @@ import companiesRouter from './routes/companies.js';
 import categoriesRouter from './routes/categories.js';
 import topicsRouter from './routes/topics.js';
 import questionsRouter from './routes/questions.js';
+import bookmarksRouter from './routes/bookmarks.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -30,6 +31,7 @@ app.use('/api/companies', companiesRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/topics', topicsRouter);
 app.use('/api/questions', questionsRouter);
+app.use('/api/bookmarks', bookmarksRouter);
 
 // Register error handling middleware last
 app.use(errorHandler);

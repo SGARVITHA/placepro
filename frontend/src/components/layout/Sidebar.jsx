@@ -1,22 +1,21 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { 
   Home, GraduationCap, CheckSquare, User, 
-  Bookmark, FileText, Activity, Trophy, 
+  Bookmark, FileText, Activity, 
   PlusSquare, Share2
 } from 'lucide-react';
 
 const mainLinks = [
   { label: 'Dashboard', to: '/dashboard', icon: Home },
-  { label: 'Practice', to: '/practice/aptitude', icon: GraduationCap },
+  { label: 'Practice', to: '/practice', icon: GraduationCap },
   { label: 'Tests', to: '/tests', icon: CheckSquare },
 ];
 
 const secondaryLinks = [
   { label: 'Bookmarks', to: '/bookmarks', icon: Bookmark },
   { label: 'Notes', to: '/notes', icon: FileText },
-  { label: 'My Activity', to: '/recent-practice', icon: Activity },
-  { label: 'Leaderboard', to: '/leaderboard', icon: Trophy },
+  { label: 'My Activity', to: '/activity', icon: Activity },
 ];
 
 const contributeLinks = [
@@ -30,13 +29,14 @@ function NavItem({ item }) {
   return (
     <NavLink
       to={item.to}
-      className={({ isActive }) =>
-        `flex items-center gap-3 px-4 py-2.5 mx-3 rounded-lg text-sm font-medium transition-colors ${
-          isActive
+      className={({ isActive }) => {
+        const isCurrentActive = isActive || (item.to === '/activity' && (window.location.pathname.startsWith('/recent-practice') || window.location.pathname.startsWith('/progress')));
+        return `flex items-center gap-3 px-4 py-2.5 mx-3 rounded-lg text-sm font-medium transition-colors ${
+          isCurrentActive
             ? 'bg-[#Edf4F0] text-[#16793A] font-semibold'
             : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'
-        }`
-      }
+        }`;
+      }}
     >
       <Icon className="w-5 h-5" />
       {item.label}
@@ -46,14 +46,18 @@ function NavItem({ item }) {
 
 export default function Sidebar() {
   return (
-    <aside className="w-[260px] bg-bg-app border-r border-border/40 h-screen sticky top-0 flex flex-col z-20 shrink-0">
+    <aside className="w-[260px] bg-white border-r border-[#eaedf1] shadow-[1px_0_4px_rgba(0,0,0,0.02)] h-screen sticky top-0 flex flex-col z-20 shrink-0">
       {/* Logo */}
-      <div className="h-20 flex items-center px-6 pt-4">
-        <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center mr-3 shrink-0 shadow-sm">
-          <div className="w-3 h-3 bg-yellow-400 rounded-sm"></div>
-        </div>
-        <span className="text-xl font-bold text-[#16793A] tracking-tight">PlacePro</span>
-      </div>
+      <Link to="/dashboard" className="h-20 flex items-center px-6 pt-4 gap-3 group border-b border-[#eaedf1]/60">
+        <img 
+          src="/placepro-logo.png" 
+          alt="PlacePro Logo" 
+          className="w-9 h-9 object-contain shrink-0 rounded-lg group-hover:scale-105 transition-transform" 
+        />
+        <span className="text-xl font-bold text-[#16793A] tracking-tight group-hover:text-emerald-700 transition-colors">
+          PlacePro
+        </span>
+      </Link>
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-6 flex flex-col gap-6 no-scrollbar">
         {/* Main Links */}
@@ -80,15 +84,14 @@ export default function Sidebar() {
       </div>
 
       {/* College Footer */}
-      <div className="p-6 relative overflow-hidden bg-bg-app mt-auto">
-        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at bottom right, var(--tw-colors-accent) 0%, transparent 60%)' }}></div>
+      <div className="p-4 px-5 relative overflow-hidden bg-[#fafbfc] border-t border-[#eaedf1] mt-auto">
         <div className="flex items-center gap-3 relative z-10">
-          <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-lg bg-white border border-[#eaedf1] flex items-center justify-center p-1.5 shrink-0 shadow-2xs">
              <img src="/rmkec-logo.png" alt="RMKEC Logo" className="w-full h-full object-contain" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-text-secondary uppercase tracking-wide font-semibold">Built for</span>
-            <span className="text-sm font-bold text-text-primary leading-tight">RMK Engineering<br/>College</span>
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="text-[9px] text-[#64748b] uppercase tracking-wider font-bold">BUILT FOR</span>
+            <span className="text-[12px] font-bold text-[#1e293b] truncate">RMK Engineering College</span>
           </div>
         </div>
       </div>

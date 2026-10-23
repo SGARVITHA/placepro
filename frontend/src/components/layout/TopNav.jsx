@@ -42,7 +42,12 @@ export default function TopNav({ onToggleMobileMenu }) {
           <Menu className="w-6 h-6" />
         </button>
 
-        <Link to="/" className="flex items-center gap-1 focus:outline-none">
+        <Link to="/" className="flex items-center gap-2.5 focus:outline-none group">
+          <img 
+            src="/placepro-logo.png" 
+            alt="PlacePro Logo" 
+            className="w-7 h-7 rounded-md object-contain shrink-0 group-hover:scale-105 transition-transform" 
+          />
           <span className="text-xl font-bold text-accent tracking-tight">PlacePro</span>
         </Link>
       </div>

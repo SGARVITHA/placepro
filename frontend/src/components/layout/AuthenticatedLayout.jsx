@@ -4,11 +4,11 @@ import TopBar from './TopBar';
 
 export default function AuthenticatedLayout({ children }) {
   return (
-    <div className="min-h-screen bg-bg-app flex overflow-hidden">
+    <div className="min-h-screen bg-[#f8f9fa] flex overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <TopBar />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar pb-24">
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 pt-4 pb-20 no-scrollbar">
           {children}
         </main>
       </div>
